@@ -1,0 +1,54 @@
+Update the start and end date and time of an event by providing event ID and new start/end date and time. Update the event table if the event exists. If the event does not exist, print out a message saying wrong event ID. Please generate a message for each user who has registered or on wait list with the new date and time of the event. 
+
+
+
+create or replace procedure update_event ( e_event_id in integer,e_event_starts in timestamp,e_event_ends in timestamp) is
+C integer;
+a_user_id users.user_id%type;
+b_user_id users.user_id%type;
+
+cursor c1 is select user_id from registrations where event_id=e_event_id;
+cursor c2 is select user_id from waitlist where event_id=e_event_id;
+
+begin
+
+select count(*) into C from events where event_id = e_event_id;
+
+
+if C <> 0 then
+
+update events
+set event_starts = e_event_starts , event_ends = e_event_ends
+where event_id = e_event_id;
+
+dbms_output.put_line('Event table is Updated');
+
+
+open c1;
+loop 
+fetch c1 into a_user_id;
+exit when c1%notfound;
+insert into messages values (message_id_seq.nextval,a_user_id, e_event_id || 'event has been updated to new startdate' ||e_event_starts || ' and ' ||'new end date ' || e_event_ends,systimestamp);
+end loop;
+dbms_output.put_line('Messages inserted into registered users');
+
+close c1;
+
+open c2;
+loop 
+fetch c2 into b_user_id;
+exit when c2%notfound;
+insert into messages values (message_id_seq.nextval,b_user_id, e_event_id || 'event has been updated to new startdate' ||e_event_starts || ' and ' ||'new end date ' || e_event_ends,systimestamp);
+end loop;
+dbms_output.put_line('Messages inserted into waitlist users');
+
+close c2;
+
+
+
+else
+
+dbms_output.put_line('Event_ID ' || e_event_id || ' doesnt exits');
+
+end if;
+end;
