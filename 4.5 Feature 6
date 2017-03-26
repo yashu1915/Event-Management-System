@@ -1,0 +1,43 @@
+List people on wait list of an event by providing the event id. The procedure prints out names of users on the wait list, their email addresses, and whether they are faculty, staff, or students. 
+--List all people who are in waiting list by providing event ID as input.
+
+
+create or replace PROCEDURE give_rating(x IN varchar, y IN number,z IN number,k varchar2) IS
+
+ create or replace procedure user_waitlist(e_event_id in integer) is 
+cursor c2 is select waitlist_id from waitlist where event_id=e_event_id;
+
+
+w_userid users.user_id%type;
+
+r_name users.user_name%type;
+
+r_email users.user_email%type;
+
+r_status  users.user_status%type;
+
+r_type users.user_type%type;
+
+
+
+
+begin
+
+
+open c2;
+
+
+loop 
+fetch c2 into w_userid;
+exit when c2%notfound;
+select user_name,user_email,user_type into r_name,r_email,r_type from users where user_id = w_userid;
+dbms_output.put_line('Waitlist User ID = '|| w_userid);
+dbms_output.put_line('Waitlist UserName = ' || r_name);
+dbms_output.put_line('Waitlist Useremail = '|| r_email );
+dbms_output.put_line('Waitlist Usertype = '|| r_type );
+
+end loop;
+
+close c2;
+
+end
