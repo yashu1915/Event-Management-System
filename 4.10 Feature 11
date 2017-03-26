@@ -1,0 +1,58 @@
+Register for an event by providing user ID and event ID. First check if the event exists. If not print out a message saying wrong event ID. Then check whether the event is full. If so, put the user on the wait list with the next position and print out a message saying you are on waitlist and the waitlist position. Otherwise register the user with the event and print a message you are registered.
+
+
+
+create or replace PROCEDURE register(x IN varchar, y IN number) IS
+   a number;
+   b number;
+   c number;
+   d number;
+   e number;
+   f number;
+   g number;
+   h number;
+   i number;
+   j number;
+   k number;
+   l number;
+   z number;
+   
+BEGIN
+SELECT count(*) into j FROM users WHERE user_id=x;
+   IF (j<>0) then
+            SELECT count(*) into k FROM events WHERE event_id=y;
+            IF (k<>0) then
+                  SELECT count(*) into l FROM registrations WHERE user_id=x and event_id=y;
+                  IF (l=0)then
+                        select location_id into z from events where event_id=y;
+                        select capacity into c from locations where location_id=z;
+                        select count(event_id) into d from registrations where event_id=y;
+                        if(d<c) then
+                               dbms_output.put_line('you are successfully registered buddy');
+                                select max(registration_id) into h from registrations;
+                                i:=h+1;
+                                insert into registrations values(i,y,current_timestamp,x);
+
+                        else
+                                dbms_output.put_line('event is full so you are added into wait list');
+                                select max(WAITLIST_ID) into  d from waitlist;
+                                select max(WAITLIST_POSITION) into e from waitlist;
+                                f:=d+1;
+                                g:=e+1;
+                                insert into waitlist values (f,x,y,g);
+                        end if;
+
+                 ELSE
+                         dbms_output.put_line('particular user is already registered');
+                 END IF;
+
+          ELSE
+               dbms_output.put_line('wrong event id');
+               END IF;
+
+
+   ELSE
+      dbms_output.put_line('user does not exist');
+   END IF;
+END;
+
