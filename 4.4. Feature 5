@@ -1,0 +1,26 @@
+List people registered for an event by providing event id. The procedure prints out name of participants, their email addresses, and whether the participant is faculty, staff, or student. 
+
+
+create or replace procedure registered_users(e_event_id in integer) is 
+cursor c1 is select user_name,user_email, user_type, user_status from users u, registrations r
+where u.user_id = r.user_id and event_id = e_event_id;
+
+r_name users.user_name%type;
+r_email users.user_email%type;
+r_type users.user_type%type;
+r_status  users.user_status%type;
+
+begin
+open c1;
+dbms_output.put_line('Participant registered for event ' || e_event_id);
+loop
+ fetch c1 into r_name,r_email,r_type, r_status;
+ exit when c1%notfound;
+ dbms_output.put_line('User Name is ' || r_name ||' User Email is ' || r_email ||' User type is '|| r_type || ' User status is '|| r_status);
+ end loop;
+
+exception 
+ when no_data_found then
+ dbms_output.put_line('No data found'); 
+close c1;
+end;
