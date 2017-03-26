@@ -1,0 +1,49 @@
+Search for events with a certain keyword in the title (you can use like), return start and end date and time, full event title, location, url, organizer name and email, and whether the event is full.
+
+--Search results will return start and end date and time, event title, location, url, organizer name, email and whether event is full
+
+
+create or replace procedure search_event ( searchevent in varchar) is
+e_event_id event.event_id%type;
+e_event_title event.event_title%type;
+e_event_desc event.event_desc%type;
+e_event_url event.event_url%type;
+e_event_starts event.event_starts%type;
+e_event_ends event.event_ends%type;
+e_event_canceled event.event_canceled%type;
+e_location_id event.location_id%type;
+e_organizer_name organizers.organizer_name%type;
+e_organizer_contact organizers.organizer_mail%type;
+x waitlist.waitlist_position;
+	
+
+cursor c1 is select event_id,event_title, event_url,event_desc,location_id,organizer_id,event_starts,event_ends,event_canceled from events where event_title like searchevent;
+
+begin
+
+open c1;
+
+loop 
+fetch c1 into e_event_id, e_event_title, e_event_url, e_event_desc, e_location_id, e_event_starts, e_event_ends, e_event_cancelled ;
+exit when c1%notfound;
+dbms_output.put_line('Event id is ' || e_event_id);
+dbms_output.put_line('Event Name is ' || e_event_title);
+dbms_output.put_line('Description: ' || e_event_desc);
+dbms_output.put_line('URL:' || e_event_url);
+dbms_output.put_line('Startdate: ' || e_event_starts);
+dbms_output.put_line('enddate:' || e_event_ends);
+dbms_output.put_line(' event cancelled : ' || e_event_canceled);
+dbms_output.put_line('Location id is' || e_location_id);
+select waitlist_position into x where event_id= e_event_id;
+if (x>0) then
+dbms_output.put_line(‘the event’||e_event_id||’is full’);
+end if;
+
+
+
+end loop;
+
+
+
+close c1;
+end;
