@@ -1,0 +1,34 @@
+Cancel an event. Please generate a message (by inserting into the message table) for each person who has registered or on wait list saying that the event has been canceled. You can use a flag in event table to indicate that the event has been canceled (so you don’t need to delete the event and registration records).
+
+
+
+create or replace procedure cancel_event (e_event_id in integer, e_event_canceled in char) is
+cursor c1 is select user_id from registrations where event_id = e_event_id;
+cursor c2 is select user_id from waitlist where event_id = e_event_id;
+a_user_id registrations.user_id%type;
+b_user_id waitlist.user_id%type;
+c varchar(20) := 'event_id ';
+d varchar(50) := concat(c,e_event_id);
+e varchar(20) := ' has cancelled';
+message_body varchar(360);
+begin
+update events set event_canceled = e_event_canceled where event_id = e_event_id;
+message_body := concat(d,e);
+open c1;
+loop
+    fetch c1 into a_user_id;
+    exit when c1%notfound;
+    insert into messages values(message_id_seq.nextval,a_user_id,message_body,systimestamp);
+    dbms_output.put_line('Message is inserted into ' || a_user_id);
+end loop;
+close c1;
+dbms_output.put_line('Registered User insert Complete');
+open c2;
+loop
+    fetch c2 into b_user_id;
+    exit when c2%notfound;
+    insert into messages values(message_id_seq.nextval,b_user_id,message_body,systimestamp);
+    dbms_output.put_line('Message is inserted into ' || b_user_id);
+end loop;
+close c2;
+end;
