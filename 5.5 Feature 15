@@ -1,0 +1,44 @@
+Print out the top K events with the most participants (only counting those registered), the top K locations with most number of events, and top K events with the highest average ratings. K is an input parameter.
+
+
+create or replace procedure topk_event(topk in integer) is
+cursor c1 is select event_id,count(registration_id) from registrations group by event_id;
+cursor c2 is select location_id,count(event_id) from events group by location_id;
+cursor c3 is select survey_id, event_id, avg(event_rating) from ratings group by survey_id, event_id order by avg(event_rating) desc;
+
+e_event_id events.event_id%type;
+reguser_count   integer;
+l_location_id locations.location_id%type;
+event_count integer;
+s_survey_id ratings.survey_id%type;
+avg_rating integer;
+begin 
+
+open c1;
+dbms_output.put_line('Top k '|| topk || ' event is ');
+loop
+fetch c1 into e_event_id,reguser_count;
+exit when c1%notfound or c1%rowcount > topk;
+dbms_output.put_line('Event ID is '|| e_event_id || ' and Number of registered users are ' || reguser_count);
+end loop;
+close c1;
+
+open c2;
+dbms_output.put_line('Top k '|| topk || ' location is ');
+loop
+fetch c2 into l_location_id,event_count;
+exit when c2%notfound or c2%rowcount > topk;
+dbms_output.put_line('location id is '|| l_location_id || ' and Number of Events are ' || event_count);
+end loop;
+close c2;
+
+open c3;
+dbms_output.put_line('Top k '|| topk || ' avg rating ');
+loop
+fetch c3 into s_survey_id, e_event_id, avg_rating;
+exit when c3%notfound or c3%rowcount > topk;
+dbms_output.put_line('survey id is '|| s_survey_id || ' for event ' || e_event_id || ' and  rating is ' || avg_rating);
+end loop;
+close c3;
+
+end;
