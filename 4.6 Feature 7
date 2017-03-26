@@ -1,0 +1,26 @@
+Return average rating of an event and total number of participants and number of people on wait list.
+
+
+create or replace procedure avg_rating(e_event_id in integer) is
+avg_rating integer;
+num_participant integer;
+num_waitlist integer;
+
+begin
+
+select avg(event_rating) into avg_rating from ratings r, registrations r1
+where r.registration_id=r1.registration_id and r1.event_id = e_event_id;
+
+dbms_output.put_line('Average rating of Event ID '|| e_event_id ||' is ' || avg_rating );
+
+select count(*) into num_participant  from registrations 
+where event_id=e_event_id;
+
+dbms_output.put_line('Number of participant of Event ID '|| e_event_id ||' is ' || num_participant );
+
+select count(*) into num_waitlist from waitlist
+where event_id=e_event_id;
+
+dbms_output.put_line('Number of people in Waitlist  of Event ID '|| e_event_id ||' is ' || num_waitlist );
+
+end;
