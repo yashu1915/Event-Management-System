@@ -1,0 +1,28 @@
+Print out the total number of events, the average number of users registered per event, and the average number of users on wait list.
+
+
+
+declare
+cursor c is select event_id,count(event_id) as l  from registrations group by event_id;
+v c%rowtype;
+a number;
+b number;
+d float;
+x float;
+y number;
+begin
+select count(*) into a from events;
+dbms_output.put_line('number of events'||a);
+select count(*) into b from waitlist;
+d:=b/a;
+dbms_output.put_line('average people in waitlist'||d);
+open c;
+loop
+fetch c into v;
+EXIT WHEN c%NOTFOUND;
+x:=v.l/a;
+y:=v.event_id;
+dbms_output.put_line('for event '||y||'average number of people regesitered'||x);
+end loop;
+close c;
+end;
