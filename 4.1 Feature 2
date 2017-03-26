@@ -1,0 +1,31 @@
+Allow a user to login by providing user id and password. Please check whether user id exists and password matches. If not, please print a message to indicate the error. Otherwise print a message to indicate user has logged on. The procedure should return a value 1 for success login and 0 for unsuccessful log in.
+
+
+Cursor c1 is select distinct user_id, user_password from users 
+	where user_id = u_id
+	and user_password = u_password;
+U_uid int;
+U_pwd varchar(32);
+doesExist int;
+Begin 
+doesExist :=0;
+Open c1;
+Loop 
+	Fetch c1 into u_uid, u_pwd; 
+	If (u_uid = u_id and u_pwd = u_password) 
+Then
+doesExist := 1;
+dbms_output.put_line ('You have been logged in');
+End if;
+Exit when c1%NOTFOUND or c1%rowcount >= 1;
+dbms_output.put_line ('user not found');
+End loop;
+If (doesExist = 0) Then 
+dbms_output.put_line ('Username and password do not match');
+
+End if;
+
+Close c1;
+End ;
+
+set serveroutput on;
