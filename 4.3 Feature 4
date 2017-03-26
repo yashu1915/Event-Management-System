@@ -1,0 +1,106 @@
+Create an event with title, description, start date and time, end date and time, location, an optional url, and organizer id. The procedure needs to check whether any other event at the same location has overlap duration with the new event. If so, print a message saying the event conflicts with an existing event. Otherwise, insert the event with input values into event table and print a message with new event ID.
+
+--create sequence for org ID
+drop sequence sequence_oid;
+Create sequence sequence_oid
+MINVALUE 1
+START WITH 10
+INCREMENT BY 1;
+
+--Creates an organizer with org ID, User ID, Organizer Name, and Organizer email
+show errors;
+Create or replace procedure add_organizer(
+	u_id IN organizers.user_id%TYPE,
+	o_name IN organizers.organizer_name%TYPE,
+	o_mail IN organizers.organizer_mail%TYPE)
+As cursor c1 is 
+select DISTINCT organizer_mail from organizers 
+where organizer_mail = o_mail;
+org_email varchar(100);
+doesExist boolean;
+begin 
+doesExist := false;
+Open c1;
+Loop 
+	Fetch c1 into org_email;
+	if (org_email = o_mail)
+Then 
+	doesExist := true;
+	dbms_output.put_line ('Organization already registered');
+end if;
+exit when c1%NOTFOUND or c1%rowcount >= 1;
+dbms_output.put_line ('Org already exist or input error');
+end loop;
+if(doesExist = false) then
+	insert into organizers(organizer_id, user_id, organizer_name, organizer_mail)
+	values (sequence_oid.nextval, u_id, o_name, o_mail);
+end if;
+close c1;
+end;
+------------------------------------------------------------------------
+--adding an org
+begin
+	add_organizer(2, 'History PPL', 'Hisppl@umbc.edu');
+end;
+-------------------------------------------------------------------------
+
+/**Create an event with title, description, start date and time, end date 
+and time, location, an optional url, and organizer id. The procedure checks whether any other 
+event at the same location has overlap duration 
+with the new event. If so, prints a message saying the event conflicts with 
+an existing event. Otherwise, inserts the event with input values into event 
+table and print a message with new event ID. */
+
+--create a sequence for event ID
+drop sequence sequence_eid;
+Create sequence sequence_eid
+MINVALUE 1
+START WITH 10
+INCREMENT BY 1;
+
+--Create an event
+show errors;
+Create or replace procedure register_event(
+	e_title IN events.event_title%TYPE,
+	e_url IN events.event_url%TYPE,
+	e_desc IN events.event_desc%TYPE,
+	loc_id IN events.location_id%TYPE,
+	o_id IN events.organizer_id%TYPE,
+	--event_sdate events.event_startdate%TYPE,
+	event_stime events.event_starts%TYPE,
+	--event_edate events.event_enddate%TYPE,
+	event_etime events.event_ends%TYPE)
+AS cursor c1 is 
+	select distinct location_id,event_starts, event_ends
+	from events 
+	where location_id = loc_id
+	and event_starts = event_stime
+	and event_ends = event_etime;
+doesExist boolean;
+event_loc int;
+event_startd date;
+event_endt timestamp;
+begin
+	doesExist :=false;
+open c1;
+loop
+	fetch c1 into event_loc, event_startd,event_endt;
+	if(event_loc = loc_id 
+		and event_startd = event_stime
+		and event_endt = event_etime)
+	Then
+		doesExist := true;
+		dbms_output.put_line ('The event time conflicts with an existing event.
+						Please select a different time or location');
+	end if;
+	exit when c1%NOTFOUND or c1%rowcount >= 1;
+	dbms_output.put_line ('event error');
+	end loop;
+	if(doesExist = false) then
+	insert into events(event_id, event_title, event_url, event_desc, location_id,
+					organizer_id, event_starts, event_ends)
+				values(sequence_eid.nextval, e_title, e_url, e_desc, loc_id,
+					o_id, event_stime, event_etime);
+			end if;
+		close c1;
+	end;
