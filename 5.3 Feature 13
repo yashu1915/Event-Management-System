@@ -1,0 +1,34 @@
+Print out the total number of events, the average number of users registered per event, and the average number of users on wait list.
+
+--Write a review for an event by providing a rating from 1 to 5 and a comment, to prevent abuse check whether user has registered for the event.
+
+
+ a number;
+
+b number;
+
+c number;
+
+d number;
+
+BEGIN
+
+SELECT count(*) into a from registrations where user_id=x and event_id=y;
+
+if(a<>0) then
+
+select registration_id into b from registrations where user_id=x and event_id=y;
+
+select max(SURVEY_ID) into c from ratings;
+
+d:=c+1;
+
+insert into ratings values(d,z,k,b,y);
+
+else
+
+dbms_output.put_line('this particular user dont have right to give rating');
+
+end if;
+
+end;
