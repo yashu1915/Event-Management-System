@@ -1,0 +1,51 @@
+Register an account with the system. The user needs to provide name, phone#, email, password, and type of user (faculty, staff, or student). The procedure should check whether the email already exists in user table. If so, please print a message saying the account exists. Otherwise create an account with input values and return a new user ID. 
+	
+
+--drops the existing sequence
+drop sequence sequence_uid;
+
+--creates a sequence for user ID
+Create sequence sequence_uid
+MINVALUE 1
+START WITH 10
+INCREMENT BY 1;
+
+/**Register an account with the system. The user needs to provide name, 
+phone#, email, password, and type of user (faculty, staff, or student). 
+The procedure should check whether the email already exists in user table. 
+If so, please print a message saying the account exists. Otherwise create 
+an account with input values and return a new user ID.*/
+
+show errors;
+
+create or replace procedure new_user(
+	u_name IN users.user_name%TYPE, 
+	u_email IN users.user_email%TYPE, 
+	u_password IN users.user_password%TYPE,
+	u_phone IN users.user_phonenumber%TYPE, 
+	u_status IN users.user_status%TYPE, 
+	u_type IN users.user_type%TYPE)
+As cursor c1 is select DISTINCT user_email from users 
+	where user_email = u_email;
+U_u_email varchar(100);
+doesExist boolean;
+Begin 
+doesExist := false;
+Open c1;
+Loop
+	Fetch c1 into u_u_email;
+	If (U_u_email = u_email)
+Then 
+	doesExist := true;
+	dbms_output.put_line ('This user is already registered');
+end if;
+exit when c1%NOTFOUND or c1%rowcount >= 1;
+dbms_output.put_line ('User already exist or input error');
+end loop;
+if(doesExist = false) then 
+insert into users(user_id, user_name, user_email, user_password,
+	user_phonenumber, user_status, user_type)
+	values(sequence_uid.nextval, u_name, u_email, u_password, u_phone, u_status, u_type);
+	end if;
+close c1;
+end;
