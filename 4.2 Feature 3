@@ -1,0 +1,20 @@
+Allow a user to read messages providing user id.
+
+
+
+Create or replace procedure read_messages(u_id varchar)
+as
+cursor c1 is select message_id, message_timestamp, message_body 
+from messages 
+where user_id = u_id;
+r c1%rowtype;
+doesExist boolean;
+begin 
+open c1;
+	loop 
+		fetch c1 into r;
+		exit when c1%notfound;
+		dbms_output.put_line('Time: ' || r.message_timestamp || ' Message: ' ||r.message_body);
+	end loop;
+	close c1;
+end;	
