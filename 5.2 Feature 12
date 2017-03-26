@@ -1,0 +1,70 @@
+Cancel an event registration by providing user ID and event ID. Please check whether the event exists and the user has indeed registered. If the user is registered, delete the registration and register the first person on the waitlist (if the wait list is not empty). Generate a message (insert into message table) for the current user saying event canceled. If a user on top of wait list is now registered, generate a message to that user saying that he or she is now registered with the event. 
+
+
+create or replace PROCEDURE register_cancel(x IN varchar, y IN number) IS
+   a number;
+   b number;
+   c number;
+   d number;
+   e number;
+   f number;
+   g number;
+   h number;
+   i number;
+   j number;
+   k number;
+   l number;
+   z number;
+   p number;
+BEGIN
+SELECT count(*) into a FROM events WHERE event_id=y;
+    IF (a<>0) then
+       SELECT count(*) into b FROM registrations WHERE user_id=x and event_id=y;
+          IF (b<>0) then
+SELECT registration_id into e FROM registrations WHERE user_id=x and event_id=y;
+            delete from ratings where registration_id=e;
+            delete from registrations where registration_id=e;
+             
+             dbms_output.put_line('dude,your registration to this event is cancelled');
+             
+
+SELECT count(*) into p FROM waitlist WHERE waitlist_position=1 and event_id=y;
+if (p<>0) then
+             
+             
+           
+             
+             select user_id into z from waitlist where waitlist_id=c;
+
+
+
+             dbms_output.put_line('dude,your registration to this event is cancelled');
+      
+             delete from waitlist where waitlist_id=c and event_id=y and waitlist_position=1;
+             
+           
+             select max(MESSAGE_ID) into k from messages;
+             l:=k+1;
+             insert into messages values(l,x,'you have cancelled registration for this event',current_timestamp);
+             select max(MESSAGE_ID) into g from messages;
+             d:=g+1;
+             insert into messages values(d,z,'your waitlist status is gone and succesfully registered',current_timestamp);
+else
+dbms_output.put_line('no waitlist');
+end if;
+             
+             
+         ELSE
+              dbms_output.put_line('This particular user didnt register to this event before');
+         END IF;                
+   ELSE
+      dbms_output.put_line('event does not exist');
+   END IF;
+exception
+when no_data_found then
+                 if ( sql%found ) then
+                         dbms_output.put_line( '2) Found!!' );
+                  elsif ( sql%notfound ) then
+                          dbms_output.put_line( '2) Not Found!!' );
+                 end if;
+END;
