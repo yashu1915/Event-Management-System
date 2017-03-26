@@ -1,0 +1,83 @@
+create table users(
+	user_id int primary key,
+	user_name varchar(32),
+	user_email varchar(100),
+	user_password varchar(32),
+	user_phonenumber int,
+	user_type varchar(32),
+	user_status varchar(32)	
+);
+
+create table locations(
+	location_id int primary key,
+	location_desc varchar(32),
+	capacity int
+);
+
+create table organizers(
+	organizer_id int primary key,
+	user_id int,
+	organizer_name varchar(32),
+	organizer_mail varchar(100),
+	foreign key(user_id) references users(user_id)
+);
+
+
+create table events(
+	event_id int primary key,
+	event_title varchar(32),
+	event_url varchar(182),
+	event_desc varchar(1000),
+	location_id int,
+	organizer_id int,
+	event_starts timestamp,
+	event_ends timestamp,
+	event_canceled char(1), 
+	foreign key (location_id) references locations(location_id),
+	foreign key (organizer_id) references organizers(organizer_id)
+);
+
+
+
+
+create table registrations(
+	registration_id int primary key,
+	event_id int, 
+	registration_date timestamp(6),
+	user_id int,
+	foreign key (event_id) references events(event_id),
+	foreign key (user_id) references users(user_id)
+);
+
+create table waitlist(
+	waitlist_id int primary key,
+	user_id int,
+	event_id int,
+	waitlist_position int,
+	foreign key (event_id) references events(event_id),
+	foreign key (user_id) references users(user_id)
+);
+
+
+
+
+
+create table messages(
+	message_id int primary key,
+	user_id int,
+	message_body varchar(360),
+	message_timestamp timestamp(6),
+	foreign key(user_id) references users(user_id)
+);
+
+
+create table ratings(
+	survey_id int primary key,
+	event_rating int,
+	event_comment varchar(100),
+	registration_id int,
+event_id int,
+	foreign key (registration_id ) references
+ registrations(registration_id ),
+foreign key (event_id) references events (event_id)
+);
